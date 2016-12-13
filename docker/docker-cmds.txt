@@ -1,0 +1,351 @@
+
+   26  boot2docker socket
+   41  docker run -p 80:80 -p 8001:8001 --name proxy -e DOCKER_HOST=192.168.8.110 -t -i clickfox/proxy /bin/bash
+   42  docker rm proxy
+
+   45  docker ps
+   46  docker stop proxy
+
+   48  boot2docker ip
+   49  boot2docker down
+   56  /usr/local/bin/boot2docker init
+   57  /usr/local/bin/boot2docker up
+   59  docker version
+   61  docker images
+   62  docker ps -a
+   72  docker tag 879f2ba3c779 centos66base:6.6
+   74  docker run -it 879f2ba3c779 /bin/bash
+   76  boot2docker ssh
+   85  docker attach 6016ffff7882
+   87  scp docker/var/lib/docker/aufs/mnt/6016ffff78828b54ad847ebc8a23894bf076cb9be39cd26f966e485899cb7eb8/tmp/tomcat7
+   88  scp docker/tomcat/tomcat7 /var/lib/docker/aufs/mnt/6016ffff78828b54ad847ebc8a23894bf076cb9be39cd26f966e485899cb7eb8/tmp
+   99  scp root@192.168.8.183:/temp/centos66base.tar ./
+  101  scp root@192.168.8.183:/temp/centos* ./
+  102  scp root@192.168.8.183:/temp/centos* ./
+  103  scp root@192.168.8.183:/tmp/centos* ./
+  104  scp root@192.168.8.183:/tmp/centos* ./
+  105  vi /Users/agebriel/.ssh/known_hosts
+  106  cd /Users/agebriel/.ssh/
+  108  mv known_hosts known_hosts_saved
+  111  cd docker/images/
+  113  scp root@192.168.8.183:/tmp/centos* ./
+  120  tar -zxvf tomcat/apache-tomcat-7.0.59.tar.gz
+  123  mv apache-tomcat-7.0.59 tomcat/apache-tomcat-7.0.59.tar.gz ls
+  124  mv apache-tomcat-7.0.59 tomcat/tomcat7
+  126  scp -r tomcat/tomcat7 root@172.17.0.2:/opt/
+  135  boot2docker ssh
+  137  scp docker/tomcat/tomcat7 docker@boot2docker:/var/lib/docker/aufs/mnt/6016ffff78828b54ad847ebc8a23894bf076cb9be39cd26f966e485899cb7eb8/tmp/tomcat7
+  138  scp docker/tomcat/tomcat7 docker@192.168.59.103:/var/lib/docker/aufs/mnt/6016ffff78828b54ad847ebc8a23894bf076cb9be39cd26f966e485899cb7eb8/tmp/tomcat7
+  139  ls docker/tomcat/
+  140  scp -R docker/tomcat/tomcat7 docker@192.168.59.103:/var/lib/docker/aufs/mnt/6016ffff78828b54ad847ebc8a23894bf076cb9be39cd26f966e485899cb7eb8/tmp/tomcat7
+  141  scp -r docker/tomcat/tomcat7 docker@192.168.59.103:/var/lib/docker/aufs/mnt/6016ffff78828b54ad847ebc8a23894bf076cb9be39cd26f966e485899cb7eb8/tmp/tomcat7
+  142  docker ps
+  143  sudo docker ps
+  148  docker ps -a
+  149  boot2docker down
+  150  unset DYLD_LIBRARY_PATH ; unset LD_LIBRARY_PATH
+  151  mkdir -p ~/.boot2docker
+  152  if [ ! -f ~/.boot2docker/boot2docker.iso ]; then cp /usr/local/share/boot2docker/boot2docker.iso ~/.boot2docker/ ; fi
+  153  /usr/local/bin/boot2docker init
+  154  /usr/local/bin/boot2docker up
+  155  $(/usr/local/bin/boot2docker shellinit)
+  156  docker version
+  157  bash
+  183  nslookup 192.168.59.3
+  209  ln -s /Users/agebriel/development/source/Development2015/JS-Development/src/public html
+  210  sudo ln -s /Users/agebriel/development/source/Development2015/JS-Development/src/public html
+  220  mvn -DskipTests -am clean install
+  224  ps -ef | grep tomcat
+  225  sudo kill -9 8136
+  231  echo $cf_configdir
+  232  ps -ef | grep tomcat
+  233  sudo kill -9 8219
+  243  ps -ef | grep tomcat
+  244  ls /etc/clickfox/
+  245  cat /etc/clickfox/systemconfig.xml
+  246  ps -ef | grep tomcat
+  247  sudo kill -9 8487
+  248  ps -ef | grep tomcat
+  250  lsof -i tcp:8080
+  251  netstat -tupln | grep tomcat
+  252  ps -ef | grep tomcat
+  281  docker build -t clickfox/proxy
+  282  docker build --help
+  284  sudo docker build -t clickfox/proxy .
+  301  docker images
+  302  docker rmi clickfox/proxy
+  303  docker images
+  305  docker build -t clickfox/proxy .
+  307  docker run -p 80:80 -p 81:8001 --name proxy -e DOCKER_HOST=192.168.12.91 -e AUTHENTICATION=192.168.12.91 -t -i clickfox/proxy proxy
+  310  docker run -p 80:80 -p 81:8001 --name proxy -e DOCKER_HOST=192.168.8.112 -t -i clickfox/proxy proxy
+  318  telnet 192.168.59.103 80
+  327  sh ~/.nvm/nvm.sh
+  328  node -version
+  330  ls -la ~/.nvm
+  331  ~/.nvm/nvm.sh
+  332  sudo ~/.nvm/nvm.sh
+  333  nvm -v
+  336  nvm use0.11.14
+  337  nvm use 0.11.14
+  338  npm install
+  342  mkdir -p /private/var/clickfox
+  343  sudo mkdir -p /private/var/clickfox
+  344  sudo mkdir -p /private/var/log/clickfox/nodejs
+  345  sudo chmod -R 777 /private/var/log/clickfox
+  354  sudo cp /etc/clickfox/systemconfig.xml /etc/clickfox/systemconfig.xml.bkp
+  365  IP=$(/sbin/ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
+  370  cat development/source/devops/clickfox_proxy/startup.sh
+  371  which node
+  372  nvm --hlep
+  373  nvm --list
+  375  nvm use 0.11.14
+  381  vi ~/.bash_profile
+  382  . ~/.bash_profile
+  384  export cf_configdir=/Users/agebriel/cf/proxy
+  397  nvm ls
+  399  nvm use 0.11.14
+  400  which node
+  401  cd development/source/Development2015/JS-Development/
+  403  grunt
+  417  vi .bash_profile
+  419  echo $cf_configdir
+  420  cat /etc/hosts
+  421  telnet localdev 8001
+  423  telnet localdev 80
+  424  telnet localdev 81
+  425  sudo vi /etc/clickfox/systemconfig.xml
+  433  boot2docker ssh
+  451  cat cea_proxy.conf
+  455  docker ps
+  456  docker rm proxy
+  462  docker run -p 80:80 -p 81:8001 --name proxy -e DOCKER_HOST=192.168.8.112 -t -i clickfox/proxy proxy
+  464  docker inspect -f '{{ .Id }}' 6884b61db1ad
+  466  docker restart 6884b61db1ad
+  477  boot2docker down
+  495  boot2docker ip
+  500  boot2docker down
+  501  boot2docker up
+  502  export DOCKER_HOST=tcp://192.168.59.103:2376
+  512  cat Dockerfile
+  514  cat cea_proxy.conf
+  515  echo $cf_configdir
+  516  cat /etc/clickfox/systemconfig.xml
+  517  docker ps -a
+  518  docker start proxy
+  519  docker ps
+  522  docker logs -f proxy
+  523  docker stop proxy
+
+
+  =================================================================================================
+  =================================================================================================
+
+docker-machine:
+---------------
+ 	$>  eval $(docker-machine env jenkins)
+ 	$>  docker-machine ip jenkins
+ 	$>  docker-machine regenerate-certs jenkins
+ 	$>  docker-machine ls
+  	$>  docker-machine help
+  	$>  docker-machine stop
+  	$>  docker-machine start jenkins
+  	$>  docker-machine stop jenkins
+  	$>  docker-machine restart jenkins
+  	$>  docker-machine ip jenkins
+  	$>  docker-machine create --driver virtualbox tomcat
+  	$>  docker-machine --debug create -d virtualbox defaul
+  	$>  docker-machine ssh <machinename>
+
+
+
+docker:
+-------
+ $>  docker run -d -p 8080:8080 -p 50000:50000 -v ~/pocs/docker/jenkins:/var/jenkins_home jenkins
+ $>  docker ps
+ $>  docker ps -a
+ $>  docker logs --help
+ $>  docker images
+ $>  docker rmi -f 44776f55294a
+ $>  docker commit 453ba99307a9 ubuntu1404:curl
+ $>  docker run -it 7a1d4ed3e0a9 bash
+ $>  docker attach f300fd5a2a24
+ $>  docker run -it -d -p 8080:8080 -p 50000:50000 -v ~/pocs/docker/jenkins/:/var/jenkins_home jenkins bash
+ $>  docker run -it -p 8080:8080 -p 50000:50000 -v ~/pocs/docker/jenkins/:/var/jenkins_home jenkins bash
+ $>  docker run -it -p 8080:8080 -p 50000:50000 -v ~/pocs/docker/jenkins/:/var/jenkins_home jenkins:1.590
+ $>  docker run -it -d -p 8080:8080 -p 50000:50000 -v ~/pocs/docker/jenkins/:/var/jenkins_home jenkins:1.590
+ $>  docker port 65b64388c9d5
+ $>  docker run -it -d -p 8080:8000 -p 50000:50000 -v ~/pocs/docker/jenkins/:/var/jenkins_home jenkins:1.590
+ $>  docker run -it -d -p 8080:8081 -p 50000:50000 -v ~/pocs/docker/jenkins/:/var/jenkins_home jenkins:1.590
+ $>  docker run -it -d -p 8080:8080 -p 50000:50000 -v ~/pocs/docker/jenkins/:/var/jenkins_home jenkins:1.590
+ $>  docker run -it --rm -p 8888:8080 tomcat:8.0
+ $>  docker exec -it 6addfe932d3d bash
+ $>  docker exec -it -u root 6addfe932d3d bash
+ $>  docker commit -m "maven installed" 6addfe932d3d maven/jenkins:1.590
+ $>  docker stop 2d3f20fc5817
+ $>  docker start -it cea269fddc7f
+ $>  docker build --help
+ $>  docker build -t clickfox/tomcat:1.0 ~/pocs/docker/tomcat/
+ $>  docker run -it -p 8888:8080 d73ddb03a28d
+ $>  docker run -it -p 8888:8080 clickfox/tomcat:1.0
+ $>  docker build -t cea7.1.0/tomcat:1.2 .
+ $>  docker run -it -d -p 8888:8080 cea7.1.0/tomcat:1.2
+
+ $>  docker cp /Users/agebriel/tomcat/apache-tomcat-7.0.57_core-hadoop/webapps/cfweb b7cadf19900c:/usr/local/tomcat/webapps/cfweb
+ $>  docker restart b7cadf19900c
+ $>  docker port b7cadf19900c
+
+ $>  docker tag cea7.1.0/tomcat7:1.3 docker.clickfox.net/cea7.1.0/tomcat7:1.3
+ $>  docker push docker.clickfox.net/cea7.1.0/tomcat7:1.3
+
+ $>  docker tag cea7.1.0/tomcat7:1.3 docker.clickfox.net/cea710/tomcat7:1.3
+ $>  docker push docker.clickfox.net/cea710/tomcat7:1.3
+
+ $> docker pull docker.clickfox.net/clickfox/cea_ui
+
+
+
+ $> docker pull docker.clickfox.net/clickfox/fox_ui_httpd
+ $> docker run -d -e TOMCAT_HOST=den-devops-vm-hood.den.clickfox.net -p '8000:8000' docker.clickfox.net/clickfox/fox_ui_httpd
+
+ display container ip address:
+ -----------------------------
+ $> docker inspect --format '{{ .NetworkSettings.IPAddress }}' foxui2
+
+ display info for container:
+ ---------------------------
+ $> docker inspect foxui2
+
+ docker pull docker.clickfox.net/clickfox/fox_ui_httpd
+ docker run -d --name foxui_home -e TOMCAT_HOST=agebriel.clickfox.net -p '8000:8000'       docker.clickfox.net/clickfox/fox_ui_httpd
+
+ http://artifactory.clickfox.net:6555/
+
+ docker pull artifactory.clickfox.net:6555/clickfox/fox_ui_httpd
+ docker run -d --name foxui_home -e TOMCAT_HOST=agebriel.clickfox.net -p '8000:8000' artifactory.clickfox.net:6555/clickfox/fox_ui_httpd
+
+
+
+
+
+ ======================================================================================================================
+
+ How to copy docker images from one host to another without via repository?
+ --------------------------------------------------------------------------
+
+ You will need to save the docker image as a tar file:
+
+docker save -o <save image to path> <image name>
+Then copy your image to a new system with regular file transfer tools such as cp or scp. After that you will have to load the image into docker:
+
+docker load -i <path to image tar file>
+
+
+Transferring a Docker image via SSH, bzipping the content on the fly:
+---------------------------------------------------------------------
+docker save <image> | bzip2 | \
+     ssh user@host 'bunzip2 | docker load'
+It's also a good idea to put pv in the middle of the pipe to see how the transfer is going:
+
+docker save <image> | bzip2 | pv | \
+     ssh user@host 'bunzip2 | docker load'
+
+
+
+
+To save image to any file path or shared nfs see following example.
+-------------------------------------------------------------------
+Get image id by doing:
+======================
+sudo docker image
+Say you have image with id "matrix-data"
+
+Save image with id:
+===================
+sudo docker save -o /home/matrix/matrix-data.tar matrix-data
+Copy image from path to any host Now import to your local docker using :
+
+sudo docker load -i <path to copied image file>
+
+
+
+For a flattened export of a container's filesystem, use;
+
+docker export CONTAINER_ID > my_container.tar
+
+Use cat my_container.tar | docker import - to import said image.
+
+
+
+All other answers are very helpful. I just went through the same problem and figure out a easy way with docker machine scp.
+
+Since docker machine v0.3.0, scp was introduced to copy files from one docker machine to another. This is very convenient if you want copying file from your local computer to a remote docker machine such as AWS EC2 or Digital Ocean because of docker machine is taking care of ssh credentials for you.
+
+Save you images using docker save like:
+=======================================
+docker save -o docker-images.tar app-web
+Copy images using docker-machine scp
+
+docker-machine ./docker-images.tar remote-machine:/home/ubuntu
+Assume your remote docker machine is remote-machine and the directory you want the tar file to be is /home/ubuntu
+
+Load docker image:
+==================
+docker-machine ssh remote-machine sudo docker load -i docker-images.tar
+
+Copy files from your local host to a machine, from machine to machine, or from a machine to your local host using scp:
+======================================================================================================================
+  docker-machine scp dev:/home/docker/foo.txt .  ---> (https://docs.docker.com/machine/reference/scp/)
+
+
+upgrade:
+========
+Upgrade a machine to the latest version of Docker. How this upgrade happens depends on the underlying distribution used on the created instance.
+
+For example, if the machine uses Ubuntu as the underlying operating system, it will run a command similar to sudo apt-get upgrade docker-engine, because Machine expects Ubuntu machines it manages to use this package. As another example, if the machine uses boot2docker for its OS, this command will download the latest boot2docker ISO and replace the machine’s existing ISO with the latest.
+
+$ docker-machine upgrade default
+Stopping machine to do the upgrade...
+Upgrading machine default...
+Downloading latest boot2docker release to /home/username/.docker/machine/cache/boot2docker.iso...
+Starting machine back up...
+Waiting for VM to start...
+Note: If you are using a custom boot2docker ISO specified using --virtualbox-boot2docker-url or an equivalent flag, running an upgrade on that machine will completely replace the specified ISO with the latest “vanilla” boot2docker ISO available.
+
+
+command ref:
+============
+    https://docs.docker.com/v1.5/reference/commandline/cli/#exec
+    https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/
+    https://hub.docker.com/r/library/tomcat/ --- tomcat
+    https://github.com/spotify/docker-maven-plugin -- pom for creating docker
+    https://github.com/lukaspustina/docker-registry-demo
+    https://github.com/docker/docker-registry
+
+
+
+
+Where is the Docker daemon log?
+===============================
+It depends on your OS. Here are the few locations, with commands for few Operating Systems:
+
+Ubuntu - /var/log/upstart/docker.log
+Boot2Docker - /var/log/docker.log
+Debian GNU/Linux - /var/log/daemon.log
+CentOS - /var/log/daemon.log | grep docker
+CoreOS - journalctl -u docker.service
+Fedora - journalctl -u docker.service
+Red Hat Enterprise Linux Server - /var/log/messages | grep docker
+OpenSuSE - journalctl -u docker.service
+OSX - ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/log/docker.log
+
+intellij https://www.jetbrains.com/help/idea/2016.2/project-and-ide-settings.html:
+==================================================================================
+ ~/Library/Caches/IntelliJIdea13/tomcat/Unnamed_foxsvcs_2/logs  tomcat log
+~/Library/Application Support/IntelliJIdeaXX contains the catalog with plugins.
+~/Library/Preferences/IntelliJIdeaXX contains the rest of the configuration settings.
+~/Library/Caches/IntelliJIdeaXX contains data caches, logs, local history, etc. These files can be quite significant in size.
+~/Library/Logs/IntelliJIdeaXX contains logs.
+
+
+
+

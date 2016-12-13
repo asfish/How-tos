@@ -1,0 +1,27 @@
+
+
+To print the number of partitions of an RDD:
+============================================
+
+scala> val ints = sc.parallelize(1 to 100, 4)
+ints: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[1] at parallelize at <console>:24
+
+scala> ints.partitions.size
+res2: Int = 4
+
+check # of cores:
+-----------------
+$ sysctl -n hw.ncpu
+8
+
+coalesce transformation:
+========================
+The coalesce transformation is used to change the number of partitions. It can trigger RDD shuffling depending on the shuffle flag (disabled by default, i.e. false).
+
+scala> val coalesceRdd2 = baseRdd.coalesce(numPartitions=4, shuffle=false)
+coalesceRdd2: org.apache.spark.rdd.RDD[String] = CoalescedRDD[11] at coalesce at <console>:28
+
+scala> coalesceRdd2.partitions.size
+res11: Int = 4
+
+

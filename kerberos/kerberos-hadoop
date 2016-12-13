@@ -1,0 +1,411 @@
+
+================================================================================================================
+=================================== Kerberos on cloudera =======================================================
+================================================================================================================
+
+
+Can you export the following environment variable, and then re-run
+your Hadoop command? It should provide more detailed output:
+
+export HADOOP_OPTS="-Dsun.security.krb5.debug=true"
+
+Can you confirm that you added the information about the ENCORE.TEST
+realm in your krb5.conf on every node in the cluster?
+
+When you add the krbtgt/REDCLOUD.COM@ENCORE.TEST principal, make sure
+you set the encryption type to the same as in Windows. So, if you used
+RC4 in windows, use only arc4-hmac:normal in kadmin.local. Also make
+sure the passwords are identical.
+
+Lastly, you should follow the trouble shooting tips from here:
+
+https://ccp.cloudera.com/display/CDH4DOC/Appendix+A+-+Troubleshooting
+
+
+To create principal a user:
+---------------------------
+	$ addprinc <user_name>/<host_name>@<your_realm>
+	
+To create keytab file for the user:
+-----------------------------------
+	$ kadmin: xst -norandkey -k <filename.keytab> <user_name>/<SPN>
+	
+	
+To generate kerberos ticket file:
+---------------------------------
+	$ kinit -kt /etc/security/keytabs/ss@hbase.keytab ss@hbase@ASFS
+	$ kinit -kt <keytab_file_name> <service_principal_name_for_the_user>
+	
+	for demo user:
+		- keytab file: ~/demo.keytab or ~/prod1.keytab
+		- service principal name: demo@MITKDC
+		
+	
+	
+List spns in the keytab file:
+-----------------------------
+	$ ktutil
+	ktutil: list
+	
+To list tickets, tgt:
+--------------------
+	$ klist
+	
+To destroy a tgt
+---------------- 
+	$ kdestroy
+	
+To connect to hive:
+-------------------
+	$ beeline
+	beeline> !connect jdbc:hive2://<host>:10000/default;principal=hive/cdh-50-ker.informatica.com@INFORMATIC
+	beeline. !connect jdbc:hive2://<host>:10000/<db_name>; principal=<principal_for_hive>
+	then kinit
+
+
+To kinit with pricipal & psswd:
+===============================
+kinit username@realm ----> kinit qacdh01@MITKDC
+Password for qacdh01@MITKDC: type password
+
+To kinit with principal and keytab file:
+========================================
+kinit -t -k keytab ---> kinit qacdh01@MITKDC -k -t /etc/clickfox/qacdh01.keytab
+
+
+Using a keytab to authenticate scripts:
+=======================================
+To execute a script so it has valid Kerberos credentials, use:
+
+  >: kinit username@ADS.IU.EDU -k -t mykeytab; myscript
+	
+
+Listing the keys in a keytab file:
+==================================
+With MIT Kerberos, to list the contents of a keytab file, use klist (replace mykeytab with the name of your keytab file):
+
+  > klist -k mykeytab
+
+The output contains two columns listing version numbers and principal names. If multiple keys for a principal exist, the one with the highest version number will be used.
+
+	
+
+Resources:
+==========
+http://web.mit.edu/KERBEROS/krb5-1.13/doc/admin/install_kdc.html#admin-acl
+http://web.mit.edu/KERBEROS/krb5-1.13/doc/admin/database.html#db-operations
+http://web.mit.edu/kerberos/krb5-1.12/doc/user/user_commands/index.html
+
+http://kerberos.org/
+
+http://web.mit.edu/macdev/KfM/Common/Documentation/preferences-osx.html
+http://web.mit.edu/macdev/KfM/Common/Documentation/preferences-osx-10.3.html
+
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Smart_Cards/Using_Kerberos.html
+
+
+
+	
+========================================================================================================================
+========================================================================================================================
+
+
+
+
+
+
+The Secure HDFS Error "No valid credentials provided" Displays when Running HDFS
+---------------------------------------------------------------------------------
+Typically this error occurs after successfully runnning the kinit command and have a valid TGT issued by the KDC in their respective Kerberos realm.  The error returned by the HDFS client is generic and could be a result of the following issues
+
+	- The user set the  $KRB5_CONFIG environment variable to something other than the default value of /etc/krb5.conf.  
+	  The HDFS client will not source the $KRB5_CONFIG from the user's shell.
+	- hdfs-site.xml does not have the correct Kerberos configuration for the namenode HDFS principal.
+	- The DNS does not resolve the correct Fully Qualified Domain Name.
+	- The Kerberos client libs version do not match the server.
+	- Kerberos encryption defaults differ between the client and the KDC.
+
+
+The error "No valid credentials provided" 
+------------------------------------------
+	is the default error string returned by Hadoop fs command when Kerberos authentication fails.  
+	To better understand which step in the Kerberos handshake failed, it is best to enable debugging. 
+
+	vi /etc/hadoop/conf/hadoop-env.sh
+	add param sun.security.krb5.debug=true to HADOOP_OPTS variable
+	export HADOOP_OPTS="-Djava.net.preferIPv4Stack=true -Dsun.security.krb5.debug=true ${HADOOP_OPTS}”
+	
+	After enabling debugging, targeting the issue will become easier.
+	
+	
+Common kinit error messages:
+----------------------------
+If you get an error message when you do attempt to generate your kerberos credentials using
+	kinit -f username@NADA.KTH.SE (Note that the case is important, so it is NADA.KTH.SE not nada.kth.se)
+	or
+	kinit --forwardable username@NADA.KTH.SE
+	
+Then first make sure you have followed the instructions for your operating system and  that you have set up the kerberos configuration file correctly.
+
+Some common error messages
+-------------------------- 
+
+ - kinit: krb5_get_init_creds: Incorrect net address
+	This is most likely caused by a NAT firewall (such as a wideband router used for most home connections). 
+
+	Remedy: Go to Kerberos and Firewalls and try the --no-addresses option to kinit or --extra-addresses=xyz.xyz.xyz.xyz 
+	with xyz replaced by the IP number of your external NAT interface. This page should give you the address of the 
+	external NAT interface in most (but not all) cases.
+
+
+- Kerberos V5: mk_req failed (Server not found in Kerberos database)
+	This is most often caused by a malfunctioning name server (such as the ones provided by some home consumer ISPs)
+
+	Remedy: You will need to add a file krb5.conf which contains a section [domain_realm] with the correct Kerberos realm 
+	information and you will need to use an environment variable to tell Heimdal the name of your config file is (if it is 
+	not /etc/krb5.conf). Add this content in the krb5.conf file:
+              [domain_realm]
+                .nada.kth.se = NADA.KTH.SE
+                .pdc.kth.se = NADA.KTH.SE
+ 
+
+- kinit: krb5_get_init_creds: unable to reach any KDC in realm NADA.KTH.SE
+	If you get this error message you are most probably behind a firewall that blocks communication with our 
+	Kerberos servers.
+
+	Remedy: Go to Kerberos and Firewalls .
+
+- Cannot find KDC for requested realm while getting initial credentials 
+	Again this likely due to a firewall
+
+	Remedy: Go to Kerberos and Firewalls .
+
+ 
+- Time is out of bounds
+	If this happens you probably have time synchronization problem:
+	./kinit
+	user@NADA.KTH.SE's Password:
+	kinit: Time is out of bounds (krb_rd_req)
+
+	This problem is caused by lack of synchronization between the system you create your Kerberos ticket on and the one 
+	you try to login on using that Kerberos ticket. Kerberos demands a maximum of 5 minutes time difference between the 
+	system clocks. 
+
+	Remedy: Help on synchronizing your system clock can be found here.
+
+ - kinit: krb5_get_init_creds: time skew (370) larger than max (300) 
+	This is again caused by the clock on your system being out of sync with the actual time.
+
+	Remedy: Help on synchronizing your system clock can be found here.
+
+- kinit/tcp unknown service, using default port 2120
+	This is not an error message and has no impact on the functionality of Kerberos under normal circumstances. The message 
+	informs the user that the kauth/tcp system service is not registered in the client machine as a known service with an 
+	assigned port number. The kauth client program therefore selects the default "standard" connection port 2120 when talking 
+	to the PDC Kerberos server. This is the wanted behavior.
+
+	On most systems the information where the service to port look up table is located is the file /etc/services. Note that 
+	other Kerberos client programs (kx, telnet, rsh) may produce similar messages, but may use other port numbers than 2120 
+	as the correct default.
+
+- Client's entry in database has expired
+	This message indicates that your Kerberos principal has expired. This happens automatically every other year and means 
+	that you can not get any Kerberos tickets and therefore you can not login at PDC. 
+
+	Remedy: Write an e-mail asking PDC support to extend your Kerberos principal. When this has been done you can continue 
+	to login again using the same password as you did before.
+	
+- kinit: krb5_get_init_creds: No ENC-TS found
+	This message also indicates that your Kerberos principal has expired. This happens automatically 
+	every other year and means that you can not get any Kerberos tickets and therefore you can not login at PDC. 
+	
+	Remedy: ask PDC support to extend your Kerberos principal.
+	
+- "Client not found in database" means the principal you used, me/admin, does not exist.
+
+- "Required KADM5 principal missing" means that your Kerberos database is missing principals for kadmin/fqdn.of.the.kdc@CORP.ORG as well as the legacy fallback kadmin/admin@CORP.ORG. Add them through kadmin.local.
+
+- "Missing keytab entry" usually refers to the service principal on the server's keytab (e.g. host/fqdn.of.my.server).
+	
+	
+	
+	
+=======================================================================================================================
+=======================================================================================================================
+
+
+
+
+kerberos
+=======
+
+ktutil: read_kt /etc/security/keytabs/hadoopsvc.keytab
+ktutil: list
+
+cat /etc/krb5.conf
+
+kinit -kt <keytab-file> <service_principal_for_the_user>
+
+
+  $  sudo yum search krb5
+  $  yum whatprovides kinit
+  $  yum whatprovides "*/kinit"
+  $  yum install -y krb5-server krb5-libs krb5-workstation
+  $  for host in {01..18} ; do ssh den-07-$host -t "sudo yum install krb5-libs krb5-workstation -y" ; done
+  $  vim /etc/krb5.conf
+  $  vim /var/kerberos/krb5kdc/kdc.conf
+  $  vim /var/kerberos/krb5kdc/kadm5.acl
+  $  for host in {02..18} ; do printf "den-07-%s" "$host" ; scp /etc/krb5.conf den-07-$host:/etc/. ; done
+  $  kdb5_util create -s
+  $  kdb5_util -r MITKDC destroy
+  $  kdb5_util create -s
+  $  chkconfig krb5kdc on
+  $  service krb5kdc start
+  $  chkconfig kadmin on
+  $  service kadmin start
+  $  kadmin.local -q "addprinc root/admin@MITKDC"
+  $  kinit root/admin@MITKDC
+  $  klist
+  $  kadmin
+  $  kdestroy
+  $  kinit
+  $  kinit root/admin@MITKDC
+  $  kadmin.local -q "addprinc hdfs@MITKDC"
+  $  kadmin.local -q "addprinc hive@MITKDC"
+  $  kadmin.local -q "addprinc prod1@MITKDC"
+  $  kadmin.local -q "addprinc prod2@MITKDC"
+  $  kadmin.local
+  $  kinit -p root/admin@MITKDC
+  $  klist -e
+  $  kinit -t ./hbase.keytab
+  $  kinit -k -t ./hbase.keytab  hbase/den-07-02.den.clickfox.net@MITKDC
+  $  ls /etc/krb5.keytab
+  $  kinit -p hbase/den-07-02.den.clickfox.net -t hbase.keytab
+  $  kinit -t hbase.keytab
+  $  kinit -p hbase/den-07-02.den.clickfox.net@MITKDC -k -t hbase.keytab
+  $  kinit -p demo -k -t ~demo/demo.keytab
+  $  kinit -k -t hbase.keytab
+  $  kinit -k -t hbase.keytab -p hbase
+  $  kinit -k -t hbase.keytab -p hbaseden-07-02
+  $  kinit -k -t hbase.keytab -p hbase@MITKDC
+  $  kinit -k -t hbase.keytab hbase/den-07-02.den.clickfox.net@MITKDC
+
+$> kinit -kt /etc/clickfox/${HADOOP_CLIENT}.keytab -p $HADOOP_CLIENT
+
+
+
+
+==============================================================================================================================
+==============================================================================================================================
+  
+  
+  
+  
+  
+  Kerberos LAB
+  ------------
+  
+  1. Install the required packages for kdc server
+  		sudo yum install krb5-server  (to install kerberos kdc server)
+  		
+  2. configure the database for the kdc server
+  		kdb5_util create -s -r LABS.LOCAL
+  		
+  3. restart kdc
+  		/etc/init.d/krb5kdc restart
+  		if this is using a different realm than that one configured in the database (i.e. LABS.LOCAL)
+  		check the following file(s)
+  			- /etc/krb5.conf --> replace all EXAMPLE.COM with LABS.LOCAL as :%s/EXAMPLE.COM/LABS.LOCAL/g
+  				and :%s/example.com/labs.local/g
+  		
+  			- /var/kerberos/krb5kdc/kadm5.acl  --> replace EXAMPLE.COM with LABS.LOCAL
+  			
+  			- /var/kerberos/krb5kdc/kdc.conf  --> replace EXAMPLE.COM with LABS.LOCAL
+  			
+  4. create new chain for kerberos
+  		iptables -N KERBEROS
+  		iptables -I INPUT -j KERBEROS
+  		
+  		iptables -L  --> show the chain
+  		
+  5. add the port(s) for the chain
+  		iptables -I KERBEROS -p tcp --dport 88 -s 192.168.1.0/24 -j ACCEPT     (tcp port)
+  		iptables -I KERBEROS -p udp --dport 88 -s 192.168.1.0/24 -j ACCEPT     (udp port)
+  		
+  		service iptables save   --->  save it
+  		
+  6. restart kdc 
+  		/etc/init.d/krb5kdc restart
+  		
+  7. turn on firewall for krb5kdc
+  		chkconfig krb5kdc on
+  		
+  At this point kdc is ready to server the clients
+  
+  Let's prepare the clients to use kdc services
+  
+  1. Install pam_krb5 package (b/c it's required by next step)
+  		yum install pam_krb5
+  		
+  2. Configure authentication for the client
+  		sudo authconfig-tui
+  		
+  		- remove LDAP auth and select Kerberos authentication and click next
+  		- set Realm: LABS.LOCAL
+  		- set KDC: <your kdc server> example -> infra.labs.local
+  		- set Addmin Server: <your kdc server>
+  		
+  	this will ask you to install pam_krb5 package if you did't do step 1.
+  		
+   
+  
+  No go back to the KDC server and do the following
+  
+  1. kadmin.local 
+  		on the prompt do 
+  			- listprincs   ----> to list the principals
+  			- addprincs <user@LABS.LOCAL>  ---> to create principal for the user 
+  			- quit ---> to exit the prompt
+  2. check the SELinux status
+  		sestatus  ---> displays selinux status
+  		setenforce 1  ---> to switch selinux to work in enforcing mode for securing reason (more secure)
+  		tail -f /var/log/messages /var/log/kadmin.log /var/log/krb5kdc.log   ---> to check the log
+  		
+  		
+  Now go to the client machine 
+  		- try to login as the user whose principal is created above and password
+  		- once in try to klist but you need to install the package that provides it, so do yum install krb5-workstation 
+  
+  Now let's add another host that plays as an application server
+  		- sudo authconfig-tui and use kerberos authentication
+  				- set Server: ldaps://infra.labs.local
+  				- Base DN: dc=labs, dc=local and click on next
+  				- set Realm: LABS.LOCAL
+  				- set KDC: <your kdc server> example -> infra.labs.local
+  				- set Addmin Server: <your kdc server> 
+  				- will ask to install nss-pam-ldapd to be installed --> yum install nss-pam-ldapd
+  		- will also need yum install pam_krb5  --> required to authenticate against kerberos
+  		- check if we have tls certificate for kerberos, if not found copy from kdc server or the other client
+  				ls /etc/openldap/cacerts/labs.ca
+  		- check nslcd.conf and set ssl to yes , specify the file (tls_cacerttile /etc/openldap/cacerts/labs.ca) 
+  			and restart nslcd as /etc/init.d/nslcd restart
+  		- check /etc/pam_ldap.conf and set ssl to yes
+  		- if this still doesn't work ping the ldap server and if it fails fix it in vi /etc/resolv.conf with the ip addres of kdc server
+  		- once in try to klist but you need to install the package that provides it, so do yum install krb5-workstation
+  		- create a principal for the application server
+  				addprincs root/admin@LABS.LOCAL  and give it password
+  				
+  		- remember to start the services
+  				/etc/init.d/kadmin start
+  		- check firewall
+  				chkconfig kadmin on
+  				
+  		- open the ports for kadmin service
+  				- iptables - I KERBEROS -p tcp --dport <port#> -s <ip-address/network-bits> -j ACCEPT 
+  				
+  		- create principal for the application server
+  				addprinc -randkey host/<fully qualified machine name>@LABS.LOCAL
+  				
+  		- create key tab 
+  				ktadd -k /etc/krb5.keytab host/<fully qualified machine name>@LABS.LOCAL
+  
